@@ -121,3 +121,177 @@
 
         #message {
             font-weight: bold;
+            height: 25px;
+            text-align: center;
+            color: #d32f2f;
+            font-size: 16px;
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Verbandle Kloon</h1>
+    <p class="instructions">Maak groepen van 4 woorden die een centrale link hebben.</p>
+
+    <div id="game-container">
+        <div id="grid"></div>
+        <div class="button-container">
+            <button id="shuffle-btn">Husselen</button>
+        </div>
+        <div id="message"></div>
+    </div>
+
+    <script>
+        const puzzelData = [
+            { id: 0, categorie: "Dingen die (vaak) geel zijn", woorden: ["Banaan", "Taxi", "Kanarie", "Badeend"] },
+            { id: 1, categorie: "Onvrijwillige acties", woorden: ["Niezen", "Blozen", "Braken", "Hoesten"] },
+            { id: 2, categorie: "Dingen die prikken", woorden: ["Cactus", "Naald", "Wesp", "Brandnetel"] },
+            { id: 3, categorie: "Werkwoorden zonder de G", woorden: ["Rillen", "Luren", "Raaien", "Okken"] }
+        ];
+
+        let alleWoorden = [];
+        let geselecteerdeWoorden = [];
+        let geradenCategorieen = [];
+        let blokkeerInvoer = false;
+
+        const gridElement = document.getElementById('grid');
+        const shuffleBtn = document.getElementById('shuffle-btn');
+        const messageElement = document.getElementById('message');
+
+        function startSpel() {
+            geselecteerdeWoorden = [];
+            geradenCategorieen = [];
+            blokkeerInvoer = false;
+            messageElement.textContent = "";
+
+            alleWoorden = [];
+            puzzelData.forEach(cat => {
+                cat.woorden.forEach(woord => {
+                    alleWoorden.push({ tekst: woord, catId: cat.id });
+                });
+            });
+
+            alleWoorden = husselEcht(alleWoorden);
+            bouwGrid();
+        }
+
+        function husselEcht(array) {
+            let gehuppeld = [...array];
+            let pogingen = 0;
+            
+            while (pogingen < 100) {
+                for (let i = gehuppeld.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [gehuppeld[i], gehuppeld[j]] = [gehuppeld[j], gehuppeld[i]];
+                }
+
+                let teVeelOpRij = false;
+                for (let i = 0; i < gehuppeld.length - 2; i++) {
+                    if (gehuppeld[i].catId === gehuppeld[i+1].catId && gehuppeld[i].catId === gehuppeld[i+2].catId) {
+                        teVeelOpRij = true;
+                        break;
+                    }
+                }
+
+                if (!teVeelOpRij) {
+                    break;
+                }
+                pogingen++;
+            }
+            return gehuppeld;
+        }
+
+        function bouwGrid() {
+            gridElement.innerHTML = '';
+            
+            geradenCategorieen.forEach(catId => {
+                const cat = puzzelData.find(c => c.id === catId);
+                const row = document.createElement('div');
+                row.className = `solved-row`;
+                row.style.backgroundColor = `var(--cat-${catId})`;
+                row.innerHTML = `
+                    <div class="category-title">${cat.categorie}</div>
+                    <div class="category-words">${cat.woorden.join(', ')}</div>
+                `;
+                gridElement.appendChild(row);
+            });
+
+            const resterendeWoorden = alleWoorden.filter(w => !geradenCategorieen.includes(w.catId));
+
+            resterendeWoorden.forEach(woordObj => {
+                const tile = document.createElement('div');
+                tile.className = 'tile';
+                tile.textContent = woordObj.tekst;
+                
+                if (geselecteerdeWoorden.includes(woordObj)) {
+                    tile.classList.add('selected');
+                }
+
+                tile.addEventListener('click', () => {
+                    if (!blokkeerInvoer) KlikOpWoord(woordObj);
+                });
+                gridElement.appendChild(tile);
+            });
+        }
+
+        function KlikOpWoord(woordObj) {
+            messageElement.textContent = "";
+            const index = geselecteerdeWoorden.indexOf(woordObj);
+            
+            if (index > -1) {
+                geselecteerdeWoorden.splice(index, 1);
+                bouwGrid();
+            } else {
+                if (geselecteerdeWoorden.length < 4) {
+                    geselecteerdeWoorden.push(woordObj);
+                    bouwGrid();
+                    
+                    if (geselecteerdeWoorden.length === 4) {
+                        controleerSelectie();
+                    }
+                }
+            }
+        }
+
+        function controleerSelectie() {
+            blokkeerInvoer = true;
+            const eersteCatId = geselecteerdeWoorden[0].catId;
+            const allesCorrect = geselecteerdeWoorden.every(w => w.catId === eersteCatId);
+
+            if (allesCorrect) {
+                geradenCategorieen.push(eersteCatId);
+                geselecteerdeWoorden = [];
+                blokkeerInvoer = false;
+                
+                if (geradenCategorieen.length === 4) {
+                    messageElement.textContent = "Gefeliciteerd! Je hebt de puzzel opgelost! 🎉";
+                    messageElement.style.color = "green";
+                }
+                bouwGrid();
+            } else {
+                messageElement.textContent = "Onjuiste combinatie, probeer het opnieuw.";
+                messageElement.style.color = "var(--text-color)";
+                
+                setTimeout(() => {
+                    geselecteerdeWoorden = [];
+                    blokkeerInvoer = false;
+                    bouwGrid();
+                }, 1000);
+            }
+        }
+
+        shuffleBtn.addEventListener('click', () => {
+            if (blokkeerInvoer) return;
+            alleWoorden = husselEcht(alleWoorden);
+            bouwGrid();
+        });
+
+        startSpel();
+    </script>
+</body>
+</html>
