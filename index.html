@@ -127,7 +127,6 @@
             color: var(--tile-selected-text);
         }
 
-        /* Specifiek gemaakt voor .tile zodat .solved-row hier NOOIT in meegaat */
         .tile.correct-blink {
             border-color: #4CAF50 !important;
             background-color: #e8f5e9 !important;
@@ -151,7 +150,6 @@
             padding: 4px;
             box-sizing: border-box;
             text-align: center;
-            /* Alleen animatie bij de allereerste keer verschijnen, daarna rotsvast */
             animation: popIn 0.3s ease-out; 
         }
 
@@ -304,7 +302,7 @@
                 { id: 0, categorie: "Woorden met een umlaut", woorden: ["Überhaupt", "Föhn", "Knäckebröd", "Rösti"] },
                 { id: 1, categorie: "Palindromen", woorden: ["Kajak", "Level", "Radar", "Solos"] },
                 { id: 2, categorie: "Eindigend op -band", woorden: ["Rock", "Horloge", "Video", "Breed"] },
-                { id: 3, categorie: "Achternamen/namen eindigend op cabaretier", woorden: ["Hansen", "Teeuwen", "Wiechel", "San-"] }
+                { id: 3, categorie: "Nederlandse cabaretiers", woorden: ["Teeuwen", "Geubels", "Myjer", "Pannekoek"] }
             ]
         };
 
@@ -360,7 +358,7 @@
             }
 
             alleWoorden = husselEcht(alleWoorden);
-            bouwGrid();
+            bouwGridEersteKeer();
         }
 
         function husselEcht(array) {
@@ -391,110 +389,96 @@
             return gehuppeld;
         }
 
-        function bouwGrid() {
+        // Bouwt de basis-structuur op zonder knipperen/flitsen
+        function bouwGridEersteKeer() {
             gridElement.innerHTML = '';
             
+            // Opgeloste rijen bovenaan tonen
             for (var g = 0; g < geradenCategorieen.length; g++) {
                 var catId = geradenCategorieen[g];
-                var cat = null;
-                for (var c = 0; c < actievePuzzelData.length; c++) {
-                    if (actievePuzzelData[c].id === catId) {
-                        cat = actievePuzzelData[c];
-                        break;
-                    }
-                }
-                
+                var cat = vindCategoriePerId(catId);
                 if (cat) {
-                    var row = document.createElement('div');
-                    row.className = "solved-row";
-                    row.style.backgroundColor = "var(--cat-" + catId + ")";
-                    row.innerHTML = "<div class='category-title'>" + cat.categorie + "</div><div class='category-words'>" + cat.woorden.join(', ') + "</div>";
+                    var row = createSolvedRowElement(cat);
                     gridElement.appendChild(row);
                 }
             }
 
+            // Losse actieve tegels tonen
             for (var w = 0; w < alleWoorden.length; w++) {
                 var woordObj = alleWoorden[w];
-                
-                var alGeraden = false;
-                for (var g = 0; g < geradenCategorieen.length; g++) {
-                    if (geradenCategorieen[g] === woordObj.catId) {
-                        alGeraden = true;
-                        break;
-                    }
-                }
-                
-                if (alGeraden) continue;
+                if (geradenCategorieen.indexOf(woordObj.catId) > -1) continue;
 
-                (function(wObj) {
-                    var tile = document.createElement('div');
-                    tile.className = 'tile';
-                    
-                    var len = wObj.tekst.length;
-                    if (window.innerWidth < 600) {
-                        if (len >= 14) {
-                            tile.style.fontSize = '2.9cqw';
-                        } else if (len >= 10) {
-                            tile.style.fontSize = '3.3cqw';
-                        }
-                    }
-                    
-                    tile.id = 'tile-' + wObj.tekst.replace(/[^a-zA-Z0-9]/g, '-');
-                    tile.textContent = wObj.tekst;
-                    
-                    var isGeselecteerd = false;
-                    for (var s = 0; s < geselecteerdeWoorden.length; s++) {
-                        if (geselecteerdeWoorden[s] === wObj) {
-                            isGeselecteerd = true;
-                            break;
-                        }
-                    }
-                    
-                    if (isGeselecteerd) {
-                        tile.classList.add('selected');
-                    }
-
-                    tile.addEventListener('click', function() {
-                        if (!blokkeerInvoer) KlikOpWoord(wObj);
-                    });
-                    gridElement.appendChild(tile);
-                })(woordObj);
+                var tile = createTileElement(woordObj);
+                gridElement.appendChild(tile);
             }
         }
 
-        function KlikOpWoord(woordObj) {
-            if (resterendeLevens <= 0 || blokkeerInvoer) return;
-            messageElement.textContent = "";
+        function vindCategoriePerId(catId) {
+            for (var c = 0; c < actievePuzzelData.length; c++) {
+                if (actievePuzzelData[c].id === catId) return actievePuzzelData[c];
+            }
+            return null;
+        }
+
+        function createSolvedRowElement(cat) {
+            var row = document.createElement('div');
+            row.className = "solved-row";
+            row.style.backgroundColor = "var(--cat-" + cat.id + ")";
+            row.innerHTML = "<div class='category-title'>" + cat.categorie + "</div><div class='category-words'>" + cat.woorden.join(', ') + "</div>";
+            return row;
+        }
+
+        function createTileElement(woordObj) {
+            var tile = document.createElement('div');
+            tile.className = 'tile';
             
-            var index = -1;
-            for (var i = 0; i < geselecteerdeWoorden.length; i++) {
-                if (geselecteerdeWoorden[i] === woordObj) {
-                    index = i;
-                    break;
+            var len = woordObj.tekst.length;
+            if (window.innerWidth < 600) {
+                if (len >= 14) {
+                    tile.style.fontSize = '2.9cqw';
+                } else if (len >= 10) {
+                    tile.style.fontSize = '3.3cqw';
                 }
             }
             
+            tile.id = haalGezuiverdeId(woordObj.tekst);
+            tile.textContent = woordObj.tekst;
+            
+            // Onthoud het woordobject direct in het DOM-element
+            tile.woordData = woordObj;
+
+            tile.addEventListener('click', function() {
+                if (!blokkeerInvoer) KlikOpWoord(woordObj, tile);
+            });
+            return tile;
+        }
+
+        function haalGezuiverdeId(tekst) {
+            return 'tile-' + tekst.replace(/[^a-zA-Z0-9]/g, '-');
+        }
+
+        // Wijzigt puur de CSS-klasse, wat flitsen/herladen 100% voorkomt
+        function KlikOpWoord(woordObj, tileElement) {
+            if (resterendeLevens <= 0 || blokkeerInvoer) return;
+            messageElement.textContent = "";
+            
+            var index = geselecteerdeWoorden.indexOf(woordObj);
+            
             if (index > -1) {
+                // Deselecteren
                 geselecteerdeWoorden.splice(index, 1);
-                bouwGrid();
+                tileElement.classList.remove('selected');
             } else {
+                // Selecteren
                 if (geselecteerdeWoorden.length < 4) {
                     geselecteerdeWoorden.push(woordObj);
-                    bouwGrid();
+                    tileElement.classList.add('selected');
                     
                     if (geselecteerdeWoorden.length === 4) {
                         setTimeout(controleerSelectie, 200);
                     }
                 }
             }
-        }
-
-        function gaNaarVolgendePuzzel() {
-            var volgendeId = EEOC = huidigePuzzelId + 1;
-            if (volgendeId > aantalPuzzels) {
-                volgendeId = 1;
-            }
-            laadPuzzel(volgendeId);
         }
 
         function controleerSelectie() {
@@ -511,8 +495,7 @@
 
             var geselecteerdeElementen = [];
             for (var i = 0; i < geselecteerdeWoorden.length; i++) {
-                var safeId = 'tile-' + geselecteerdeWoorden[i].tekst.replace(/[^a-zA-Z0-9]/g, '-');
-                var el = document.getElementById(safeId);
+                var el = document.getElementById(haalGezuiverdeId(geselecteerdeWoorden[i].tekst));
                 if (el) geselecteerdeElementen.push(el);
             }
 
@@ -533,7 +516,7 @@
                         shuffleBtn.style.display = "none";
                         nextBtn.style.display = "inline-block";
                     }
-                    bouwGrid();
+                    bouwGridEersteKeer();
                 }, 800);
 
             } else {
@@ -551,7 +534,7 @@
                     setTimeout(function() {
                         geradenCategorieen = [0, 1, 2, 3];
                         geselecteerdeWoorden = [];
-                        bouwGrid();
+                        bouwGridEersteKeer();
                         shuffleBtn.style.display = "none";
                         nextBtn.style.display = "inline-block";
                     }, 1200);
@@ -560,18 +543,28 @@
                     messageElement.style.color = "#000000";
                     
                     setTimeout(function() {
+                        for (var e = 0; e < geselecteerdeElementen.length; e++) {
+                            geselecteerdeElementen[e].classList.remove('selected', 'wrong-blink');
+                        }
                         geselecteerdeWoorden = [];
                         blokkeerInvoer = false;
-                        bouwGrid();
                     }, 1000);
                 }
             }
         }
 
+        function gaNaarVolgendePuzzel() {
+            var volgendeId = huidigePuzzelId + 1;
+            if (volgendeId > aantalPuzzels) {
+                volgendeId = 1;
+            }
+            laadPuzzel(volgendeId);
+        }
+
         shuffleBtn.addEventListener('click', function() {
             if (blokkeerInvoer || resterendeLevens <= 0) return;
             alleWoorden = husselEcht(alleWoorden);
-            bouwGrid();
+            bouwGridEersteKeer();
         });
 
         nextBtn.addEventListener('click', function() {
