@@ -38,10 +38,30 @@
             text-align: center;
         }
 
+        .status-container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 600px;
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            box-sizing: border-box;
+            padding: 0 5px;
+        }
+
+        .heart {
+            color: #d32f2f;
+            margin: 0 2px;
+        }
+
+        .heart.lost {
+            color: #ccc;
+        }
+
         #game-container {
             max-width: 600px;
             width: 100%;
-            margin-top: 20px;
         }
 
         #grid {
@@ -58,19 +78,32 @@
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 14px;
+            font-size: 13px;
             text-transform: uppercase;
             border-radius: 6px;
             cursor: pointer;
             user-select: none;
-            transition: background-color 0.2s, color 0.2s;
+            transition: background-color 0.2s, color 0.2s, border-color 0.1s;
             text-align: center;
             padding: 5px;
+            box-sizing: border-box;
+            border: 3px solid transparent;
         }
 
         .tile.selected {
             background-color: var(--tile-selected);
             color: var(--tile-selected-text);
+        }
+
+        .tile.correct-blink {
+            border-color: #4CAF50 !important;
+            background-color: #e8f5e9;
+            color: #4CAF50;
+        }
+
+        .tile.wrong-blink {
+            border-color: #f44336 !important;
+            animation: shake 0.3s ease-in-out;
         }
 
         .solved-row {
@@ -83,6 +116,7 @@
             border-radius: 6px;
             font-weight: bold;
             animation: popIn 0.3s ease-out;
+            margin-bottom: 8px;
         }
 
         .solved-row .category-title {
@@ -119,12 +153,28 @@
             background-color: #f5f5f5;
         }
 
+        #next-btn {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            display: none;
+        }
+
+        #next-btn:hover {
+            background-color: #1e88e5;
+        }
+
         #message {
             font-weight: bold;
             height: 25px;
             text-align: center;
-            color: #d32f2f;
             font-size: 16px;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-6px); }
+            40%, 80% { transform: translateX(6px); }
         }
 
         @keyframes popIn {
@@ -138,60 +188,123 @@
     <h1>Verbandle Kloon</h1>
     <p class="instructions">Maak groepen van 4 woorden die een centrale link hebben.</p>
 
+    <div class="status-container">
+        <div id="level-display">Puzzel 1 / 5</div>
+        <div id="lives-box">Levens: <span id="hearts-display">❤️ ❤️ ❤️ ❤️</span></div>
+    </div>
+
     <div id="game-container">
         <div id="grid"></div>
         <div class="button-container">
             <button id="shuffle-btn">Husselen</button>
+            <button id="next-btn">Volgende puzzel</button>
         </div>
         <div id="message"></div>
     </div>
 
     <script>
-        const puzzelData = [
-            { id: 0, categorie: "Dingen die (vaak) geel zijn", woorden: ["Banaan", "Taxi", "Kanarie", "Badeend"] },
-            { id: 1, categorie: "Onvrijwillige acties", woorden: ["Niezen", "Blozen", "Braken", "Hoesten"] },
-            { id: 2, categorie: "Dingen die prikken", woorden: ["Cactus", "Naald", "Wesp", "Brandnetel"] },
-            { id: 3, categorie: "Werkwoorden zonder de G", woorden: ["Rillen", "Luren", "Raaien", "Okken"] }
-        ];
+        var allePuzzels = {
+            1: [
+                { id: 0, categorie: "Dingen die (vaak) geel zijn", woorden: ["Banaan", "Taxi", "Kanarie", "Badeend"] },
+                { id: 1, categorie: "Onvrijwillige acties", woorden: ["Niezen", "Blozen", "Braken", "Hoesten"] },
+                { id: 2, categorie: "Dingen die prikken", woorden: ["Cactus", "Naald", "Wesp", "Brandnetel"] },
+                { id: 3, categorie: "Werkwoorden zonder de G", woorden: ["Rillen", "Luren", "Raaien", "Okken"] }
+            ],
+            2: [
+                { id: 0, categorie: "Staatsvormen", woorden: ["Monarchie", "Republiek", "Theocratie", "Dictatuur"] },
+                { id: 1, categorie: "Gebruiksvoorwerpen met batterijen", woorden: ["Klok", "Rookmelder", "Afstandsbediening", "Weegschaal"] },
+                { id: 2, categorie: "Nieuwssites", woorden: ["Nu", "Nos", "Ad", "Fd"] },
+                { id: 3, categorie: "Afkortingen van Nederlandse provincies", woorden: ["Gr", "Dr", "Nh", "Ut"] }
+            ],
+            3: [
+                { id: 0, categorie: "Hoofd, schouders, knie en teen", woorden: ["Hoofd", "Schouders", "Knie", "Teen"] },
+                { id: 1, categorie: "Teletubbie personages", woorden: ["Tinky Winky", "Po", "Laa-Laa", "Dipsy"] },
+                { id: 2, categorie: "Eindigend op -knop", woorden: ["Aan-uit", "Volume", "Deur", "Bloem"] },
+                { id: 3, categorie: "Beroemde Michaels", woorden: ["Jordan", "Jackson", "J Fox", "Caine"] }
+            ],
+            4: [
+                { id: 0, categorie: "Woorden met een dier in de tweede lettergreep", woorden: ["Angsthaas", "Suikerspin", "Motormuis", "Kitkat"] },
+                { id: 1, categorie: "Tennistermen", woorden: ["Ace", "Love", "Set", "Deuce"] },
+                { id: 2, categorie: "Woorden die 'twee' betekenen", woorden: ["Paar", "Duo", "Koppel", "Stel"] },
+                { id: 3, categorie: "Woorden te combineren met Goud-", woorden: ["Vis", "Smid", "A", "Mijn"] }
+            ],
+            5: [
+                { id: 0, categorie: "Woorden met een umlaut", woorden: ["Überhaupt", "Föhn", "Knäckebröd", "Rösti"] },
+                { id: 1, categorie: "Palindromen", woorden: ["Kajak", "Level", "Radar", "Solos"] },
+                { id: 2, categorie: "Eindigend op -band", woorden: ["Rock", "Horloge", "Video", "Breed"] },
+                { id: 3, categorie: "Achternamen/namen eindigend op cabaretier", woorden: ["Hansen", "Teeuwen", "Wiechel", "San-"] }
+            ]
+        };
 
-        let alleWoorden = [];
-        let geselecteerdeWoorden = [];
-        let geradenCategorieen = [];
-        let blokkeerInvoer = false;
+        var aantalPuzzels = 5;
+        var huidigePuzzelId = 1;
+        var actievePuzzelData = [];
+        var alleWoorden = [];
+        var geselecteerdeWoorden = [];
+        var geradenCategorieen = [];
+        var maxLevens = 4;
+        var resterendeLevens = 4;
+        var blokkeerInvoer = false;
 
-        const gridElement = document.getElementById('grid');
-        const shuffleBtn = document.getElementById('shuffle-btn');
-        const messageElement = document.getElementById('message');
+        var gridElement = document.getElementById('grid');
+        var shuffleBtn = document.getElementById('shuffle-btn');
+        var nextBtn = document.getElementById('next-btn');
+        var messageElement = document.getElementById('message');
+        var heartsDisplay = document.getElementById('hearts-display');
+        var levelDisplay = document.getElementById('level-display');
 
-        function startSpel() {
+        function updateStatusWeergave() {
+            levelDisplay.textContent = "Puzzel " + huidigePuzzelId + " / " + aantalPuzzels;
+            var hartenHtml = "";
+            for (var i = 0; i < maxLevens; i++) {
+                if (i < resterendeLevens) {
+                    hartenHtml += "❤️ ";
+                } else {
+                    hartenHtml += "<span class='heart lost'>🖤</span> ";
+                }
+            }
+            heartsDisplay.innerHTML = hartenHtml.trim();
+        }
+
+        function laadPuzzel(id) {
+            huidigePuzzelId = id;
+            actievePuzzelData = allePuzzels[huidigePuzzelId];
+            
             geselecteerdeWoorden = [];
             geradenCategorieen = [];
+            resterendeLevens = maxLevens;
             blokkeerInvoer = false;
             messageElement.textContent = "";
+            nextBtn.style.display = "none";
+            shuffleBtn.style.display = "inline-block";
+            updateStatusWeergave();
 
             alleWoorden = [];
-            puzzelData.forEach(cat => {
-                cat.woorden.forEach(woord => {
-                    alleWoorden.push({ tekst: woord, catId: cat.id });
-                });
-            });
+            for (var c = 0; c < actievePuzzelData.length; c++) {
+                var cat = actievePuzzelData[c];
+                for (var w = 0; w < cat.woorden.length; w++) {
+                    alleWoorden.push({ tekst: cat.woorden[w], catId: cat.id });
+                }
+            }
 
             alleWoorden = husselEcht(alleWoorden);
             bouwGrid();
         }
 
         function husselEcht(array) {
-            let gehuppeld = [...array];
-            let pogingen = 0;
+            var gehuppeld = [].concat(array);
+            var pogingen = 0;
             
             while (pogingen < 100) {
-                for (let i = gehuppeld.length - 1; i > 0; i--) {
-                    const j = Math.floor(Math.random() * (i + 1));
-                    [gehuppeld[i], gehuppeld[j]] = [gehuppeld[j], gehuppeld[i]];
+                for (var i = gehuppeld.length - 1; i > 0; i--) {
+                    var j = Math.floor(Math.random() * (i + 1));
+                    var temp = gehuppeld[i];
+                    gehuppeld[i] = gehuppeld[j];
+                    gehuppeld[j] = temp;
                 }
 
-                let teVeelOpRij = false;
-                for (let i = 0; i < gehuppeld.length - 2; i++) {
+                var teVeelOpRij = false;
+                for (var i = 0; i < gehuppeld.length - 2; i++) {
                     if (gehuppeld[i].catId === gehuppeld[i+1].catId && gehuppeld[i].catId === gehuppeld[i+2].catId) {
                         teVeelOpRij = true;
                         break;
@@ -209,39 +322,76 @@
         function bouwGrid() {
             gridElement.innerHTML = '';
             
-            geradenCategorieen.forEach(catId => {
-                const cat = puzzelData.find(c => c.id === catId);
-                const row = document.createElement('div');
-                row.className = `solved-row`;
-                row.style.backgroundColor = `var(--cat-${catId})`;
-                row.innerHTML = `
-                    <div class="category-title">${cat.categorie}</div>
-                    <div class="category-words">${cat.woorden.join(', ')}</div>
-                `;
-                gridElement.appendChild(row);
-            });
-
-            const resterendeWoorden = alleWoorden.filter(w => !geradenCategorieen.includes(w.catId));
-
-            resterendeWoorden.forEach(woordObj => {
-                const tile = document.createElement('div');
-                tile.className = 'tile';
-                tile.textContent = woordObj.tekst;
-                
-                if (geselecteerdeWoorden.includes(woordObj)) {
-                    tile.classList.add('selected');
+            for (var g = 0; g < geradenCategorieen.length; g++) {
+                var catId = geradenCategorieen[g];
+                var cat = null;
+                for (var c = 0; c < actievePuzzelData.length; c++) {
+                    if (actievePuzzelData[c].id === catId) {
+                        cat = actievePuzzelData[c];
+                        break;
+                    }
                 }
+                
+                if (cat) {
+                    var row = document.createElement('div');
+                    row.className = "solved-row";
+                    row.style.backgroundColor = "var(--cat-" + catId + ")";
+                    row.innerHTML = "<div class='category-title'>" + cat.categorie + "</div><div class='category-words'>" + cat.woorden.join(', ') + "</div>";
+                    gridElement.appendChild(row);
+                }
+            }
 
-                tile.addEventListener('click', () => {
-                    if (!blokkeerInvoer) KlikOpWoord(woordObj);
-                });
-                gridElement.appendChild(tile);
-            });
+            for (var w = 0; w < alleWoorden.length; w++) {
+                var woordObj = alleWoorden[w];
+                
+                var alGeraden = false;
+                for (var g = 0; g < geradenCategorieen.length; g++) {
+                    if (geradenCategorieen[g] === woordObj.catId) {
+                        alGeraden = true;
+                        break;
+                    }
+                }
+                
+                if (alGeraden) continue;
+
+                (function(wObj) {
+                    var tile = document.createElement('div');
+                    tile.className = 'tile';
+                    // Vervang niet-alfanumerieke tekens om een geldig ID te garanderen
+                    tile.id = 'tile-' + wObj.tekst.replace(/[^a-zA-Z0-9]/g, '-');
+                    tile.textContent = wObj.tekst;
+                    
+                    var isGeselecteerd = false;
+                    for (var s = 0; s < geselecteerdeWoorden.length; s++) {
+                        if (geselecteerdeWoorden[s] === wObj) {
+                            isGeselecteerd = true;
+                            break;
+                        }
+                    }
+                    
+                    if (isGeselecteerd) {
+                        tile.classList.add('selected');
+                    }
+
+                    tile.addEventListener('click', function() {
+                        if (!blokkeerInvoer) KlikOpWoord(wObj);
+                    });
+                    gridElement.appendChild(tile);
+                })(woordObj);
+            }
         }
 
         function KlikOpWoord(woordObj) {
+            if (resterendeLevens <= 0 || blokkeerInvoer) return;
             messageElement.textContent = "";
-            const index = geselecteerdeWoorden.indexOf(woordObj);
+            
+            var index = -1;
+            for (var i = 0; i < geselecteerdeWoorden.length; i++) {
+                if (geselecteerdeWoorden[i] === woordObj) {
+                    index = i;
+                    break;
+                }
+            }
             
             if (index > -1) {
                 geselecteerdeWoorden.splice(index, 1);
@@ -252,46 +402,102 @@
                     bouwGrid();
                     
                     if (geselecteerdeWoorden.length === 4) {
-                        controleerSelectie();
+                        setTimeout(controleerSelectie, 200);
                     }
                 }
             }
         }
 
+        function gaNaarVolgendePuzzel() {
+            var volgendeId = huidigePuzzelId + 1;
+            if (volgendeId > aantalPuzzels) {
+                volgendeId = 1;
+            }
+            laadPuzzel(volgendeId);
+        }
+
         function controleerSelectie() {
             blokkeerInvoer = true;
-            const eersteCatId = geselecteerdeWoorden[0].catId;
-            const allesCorrect = geselecteerdeWoorden.every(w => w.catId === eersteCatId);
+            var eersteCatId = geselecteerdeWoorden[0].catId;
+            
+            var allesCorrect = true;
+            for (var i = 0; i < geselecteerdeWoorden.length; i++) {
+                if (geselecteerdeWoorden[i].catId !== eersteCatId) {
+                    allesCorrect = false;
+                    break;
+                }
+            }
+
+            var geselecteerdeElementen = [];
+            for (var i = 0; i < geselecteerdeWoorden.length; i++) {
+                var safeId = 'tile-' + geselecteerdeWoorden[i].tekst.replace(/[^a-zA-Z0-9]/g, '-');
+                var el = document.getElementById(safeId);
+                if (el) geselecteerdeElementen.push(el);
+            }
 
             if (allesCorrect) {
-                geradenCategorieen.push(eersteCatId);
-                geselecteerdeWoorden = [];
-                blokkeerInvoer = false;
-                
-                if (geradenCategorieen.length === 4) {
-                    messageElement.textContent = "Gefeliciteerd! Je hebt de puzzel opgelost! 🎉";
-                    messageElement.style.color = "green";
+                for (var e = 0; e < geselecteerdeElementen.length; e++) {
+                    geselecteerdeElementen[e].classList.remove('selected');
+                    geselecteerdeElementen[e].classList.add('correct-blink');
                 }
-                bouwGrid();
-            } else {
-                messageElement.textContent = "Onjuiste combinatie, probeer het opnieuw.";
-                messageElement.style.color = "var(--text-color)";
-                
-                setTimeout(() => {
+
+                setTimeout(function() {
+                    geradenCategorieen.push(eersteCatId);
                     geselecteerdeWoorden = [];
                     blokkeerInvoer = false;
+                    
+                    if (geradenCategorieen.length === 4) {
+                        messageElement.textContent = "Goed gedaan! Klik hieronder voor de volgende puzzel. 🎉";
+                        messageElement.style.color = "green";
+                        shuffleBtn.style.display = "none";
+                        nextBtn.style.display = "inline-block";
+                    }
                     bouwGrid();
-                }, 1000);
+                }, 800);
+
+            } else {
+                resterendeLevens--;
+                updateStatusWeergave();
+
+                for (var e = 0; e < geselecteerdeElementen.length; e++) {
+                    geselecteerdeElementen[e].classList.add('wrong-blink');
+                }
+                
+                if (resterendeLevens <= 0) {
+                    messageElement.textContent = "Game Over! Bekijk de antwoorden en klik op volgende... 😢";
+                    messageElement.style.color = "#d32f2f";
+                    
+                    setTimeout(function() {
+                        geradenCategorieen = [0, 1, 2, 3];
+                        geselecteerdeWoorden = [];
+                        bouwGrid();
+                        shuffleBtn.style.display = "none";
+                        nextBtn.style.display = "inline-block";
+                    }, 1200);
+                } else {
+                    messageElement.textContent = "Onjuiste combinatie, probeer het opnieuw.";
+                    messageElement.style.color = "#000000";
+                    
+                    setTimeout(function() {
+                        geselecteerdeWoorden = [];
+                        blokkeerInvoer = false;
+                        bouwGrid();
+                    }, 1000);
+                }
             }
         }
 
-        shuffleBtn.addEventListener('click', () => {
-            if (blokkeerInvoer) return;
+        shuffleBtn.addEventListener('click', function() {
+            if (blokkeerInvoer || resterendeLevens <= 0) return;
             alleWoorden = husselEcht(alleWoorden);
             bouwGrid();
         });
 
-        startSpel();
+        nextBtn.addEventListener('click', function() {
+            gaNaarVolgendePuzzel();
+        });
+
+        laadPuzzel(1);
     </script>
 </body>
 </html>
