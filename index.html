@@ -24,27 +24,30 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            padding: 10px; /* Iets minder witruimte op mobiel */
             margin: 0;
         }
 
         h1 {
+            margin-top: 10px;
             margin-bottom: 5px;
+            font-size: 24px; /* Iets compacter op mobiel */
         }
 
         .instructions {
             color: #666;
             margin-bottom: 15px;
             text-align: center;
+            font-size: 14px;
         }
 
         .status-container {
             display: flex;
             justify-content: space-between;
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
             margin-bottom: 15px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             box-sizing: border-box;
             padding: 0 5px;
@@ -60,34 +63,41 @@
         }
 
         #game-container {
-            max-width: 600px;
+            max-width: 500px;
             width: 100%;
         }
 
         #grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
-            margin-bottom: 20px;
+            gap: 6px; /* Iets strakkere grid-lijnen voor meer ruimte */
+            margin-bottom: 15px;
         }
 
         .tile {
-            aspect-ratio: 1 / 1;
+            height: 65px; /* Vaste compacte hoogte zodat 16 vakken altijd passen */
             background-color: var(--tile-default);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 13px;
+            font-size: 11px; /* Basisgrootte voor mobiel */
             text-transform: uppercase;
             border-radius: 6px;
             cursor: pointer;
             user-select: none;
             transition: background-color 0.2s, color 0.2s, border-color 0.1s;
             text-align: center;
-            padding: 5px;
+            padding: 4px;
             box-sizing: border-box;
             border: 3px solid transparent;
+            overflow: hidden;
+            word-break: break-word; /* Breekt extreem lange woorden netjes af */
+        }
+
+        /* Als een woord heel lang is, maken we de tekst nóg een slagje kleiner */
+        .tile.long-word {
+            font-size: 9px;
         }
 
         .tile.selected {
@@ -108,7 +118,7 @@
 
         .solved-row {
             grid-column: span 4;
-            height: 60px;
+            height: 55px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -116,18 +126,21 @@
             border-radius: 6px;
             font-weight: bold;
             animation: popIn 0.3s ease-out;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            padding: 5px;
+            box-sizing: border-box;
+            text-align: center;
         }
 
         .solved-row .category-title {
-            font-size: 14px;
+            font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
 
         .solved-row .category-words {
-            font-size: 12px;
+            font-size: 11px;
             font-weight: normal;
             opacity: 0.9;
         }
@@ -136,15 +149,15 @@
             display: flex;
             justify-content: center;
             gap: 10px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         button {
             background-color: transparent;
             border: 1px solid #ccc;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 25px;
-            font-size: 16px;
+            font-size: 15px;
             font-weight: 600;
             cursor: pointer;
         }
@@ -168,18 +181,30 @@
             font-weight: bold;
             height: 25px;
             text-align: center;
-            font-size: 16px;
+            font-size: 14px;
         }
 
         @keyframes shake {
             0%, 100% { transform: translateX(0); }
-            20%, 60% { transform: translateX(-6px); }
-            40%, 80% { transform: translateX(6px); }
+            20%, 60% { transform: translateX(-4px); }
+            40%, 80% { transform: translateX(4px); }
         }
 
         @keyframes popIn {
             0% { transform: scale(0.9); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Voor grotere schermen (zoals je Mac) schalen we het weer prachtig op */
+        @media (min-width: 600px) {
+            body { padding: 20px; }
+            h1 { font-size: 32px; }
+            .tile { height: 100px; font-size: 14px; }
+            .tile.long-word { font-size: 11px; }
+            .solved-row { height: 65px; }
+            .solved-row .category-title { font-size: 14px; }
+            .solved-row .category-words { font-size: 12px; }
+            button { padding: 12px 24px; font-size: 16px; }
         }
     </style>
 </head>
@@ -357,7 +382,12 @@
                 (function(wObj) {
                     var tile = document.createElement('div');
                     tile.className = 'tile';
-                    // Vervang niet-alfanumerieke tekens om een geldig ID te garanderen
+                    
+                    // Voeg extra CSS-klasse toe als het woord langer is dan 9 letters
+                    if (wObj.tekst.length > 9) {
+                        tile.classList.add('long-word');
+                    }
+                    
                     tile.id = 'tile-' + wObj.tekst.replace(/[^a-zA-Z0-9]/g, '-');
                     tile.textContent = wObj.tekst;
                     
@@ -409,7 +439,7 @@
         }
 
         function gaNaarVolgendePuzzel() {
-            var volgendeId = huidigePuzzelId + 1;
+            var volgendeId = currentId = huidigePuzzelId + 1;
             if (volgendeId > aantalPuzzels) {
                 volgendeId = 1;
             }
