@@ -186,22 +186,34 @@
         .button-container {
             display: flex;
             justify-content: center;
+            gap: 10px;
             width: 100%;
         }
 
         button {
             background-color: transparent;
             border: 1px solid #ccc;
-            padding: 1.5vh 5vh;
+            padding: 1.5vh 2vh;
             border-radius: 25px;
-            font-size: 2.2vh;
+            font-size: 1.9vh;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
+            flex: 1;
+            max-width: 240px;
         }
 
         button:hover {
             background-color: #f5f5f5;
+        }
+
+        #random-btn {
+            border-color: #e67e22;
+            color: #e67e22;
+        }
+
+        #random-btn:hover {
+            background-color: #fdf5ee;
         }
 
         #next-btn {
@@ -240,7 +252,7 @@
             .solved-row { height: 90px; }
             .solved-row .category-title { font-size: 14px; }
             .solved-row .category-words { font-size: 12px; }
-            button { padding: 12px 36px; font-size: 16px; }
+            button { padding: 12px 24px; font-size: 15px; }
             h1 { font-size: 32px; }
             .instructions { font-size: 16px; }
             .status-container { font-size: 18px; }
@@ -267,13 +279,14 @@
     <div class="bottom-container">
         <div class="button-container">
             <button id="shuffle-btn">Husselen</button>
+            <button id="random-btn">Willekeurige andere puzzel</button>
             <button id="next-btn">Volgende puzzel</button>
         </div>
         <div id="message"></div>
     </div>
 
     <script>
-        var allePuzzels = {
+        var allePuzzelsData = {
             1: [
                 { id: 0, categorie: "Dingen die (vaak) geel zijn", woorden: ["Banaan", "Taxi", "Kanarie", "Badeend"] },
                 { id: 1, categorie: "Onvrijwillige acties", woorden: ["Niezen", "Blozen", "Braken", "Hoesten"] },
@@ -307,7 +320,8 @@
         };
 
         var aantalPuzzels = 5;
-        var huidigePuzzelId = 1;
+        var actievePuzzelId = 1;
+        
         var actievePuzzelData = [];
         var alleWoorden = [];
         var geselecteerdeWoorden = [];
@@ -318,13 +332,14 @@
 
         var gridElement = document.getElementById('grid');
         var shuffleBtn = document.getElementById('shuffle-btn');
+        var randomBtn = document.getElementById('random-btn');
         var nextBtn = document.getElementById('next-btn');
         var messageElement = document.getElementById('message');
         var heartsDisplay = document.getElementById('hearts-display');
         var levelDisplay = document.getElementById('level-display');
 
         function updateStatusWeergave() {
-            levelDisplay.textContent = "Puzzel " + huidigePuzzelId + " / " + aantalPuzzels;
+            levelDisplay.textContent = "Puzzel " + actievePuzzelId + " / " + aantalPuzzels;
             var hartenHtml = "";
             for (var i = 0; i < maxLevens; i++) {
                 if (i < resterendeLevens) {
@@ -337,16 +352,18 @@
         }
 
         function laadPuzzel(id) {
-            huidigePuzzelId = id;
-            actievePuzzelData = allePuzzels[huidigePuzzelId];
+            actievePuzzelId = id;
+            actievePuzzelData = allePuzzelsData[actievePuzzelId];
             
             geselecteerdeWoorden = [];
             geradenCategorieen = [];
             resterendeLevens = maxLevens;
             blokkeerInvoer = false;
             messageElement.textContent = "";
+            
             nextBtn.style.display = "none";
             shuffleBtn.style.display = "inline-block";
+            randomBtn.style.display = "inline-block";
             updateStatusWeergave();
 
             alleWoorden = [];
@@ -359,6 +376,21 @@
 
             alleWoorden = husselEcht(alleWoorden);
             bouwGridEersteKeer();
+        }
+
+        function speelWillekeurigeAnderePuzzel() {
+            if (blokkeerInvoer) return;
+            
+            var opties = [];
+            for (var i = 1; i <= aantalPuzzels; i++) {
+                if (i !== actievePuzzelId) {
+                    opties.push(i);
+                }
+            }
+            
+            // Kies een random ID uit de overgebleven puzzels
+            var randomId = opties[Math.floor(Math.random() * opties.length)];
+            laadPuzzel(randomId);
         }
 
         function husselEcht(array) {
@@ -505,8 +537,7 @@
                     if (geradenCategorieen.length === 4) {
                         messageElement.textContent = "Goed gedaan! 🎉";
                         messageElement.style.color = "green";
-                        shuffleBtn.style.display = "none";
-                        nextBtn.style.display = "inline-block";
+                        toonEindFaseKnoppen();
                     }
                     bouwGridEersteKeer();
                 }, 800);
@@ -527,8 +558,7 @@
                         geradenCategorieen = [0, 1, 2, 3];
                         geselecteerdeWoorden = [];
                         bouwGridEersteKeer();
-                        shuffleBtn.style.display = "none";
-                        nextBtn.style.display = "inline-block";
+                        toonEindFaseKnoppen();
                     }, 1200);
                 } else {
                     messageElement.textContent = "Onjuiste combinatie.";
@@ -545,10 +575,16 @@
             }
         }
 
+        function toonEindFaseKnoppen() {
+            shuffleBtn.style.display = "none";
+            randomBtn.style.display = "none";
+            nextBtn.style.display = "inline-block";
+        }
+
         function gaNaarVolgendePuzzel() {
-            var volgendeId = huidigePuzzelId + 1;
+            var volgendeId = actievePuzzelId + 1;
             if (volgendeId > aantalPuzzels) {
-                volgendeId = 1;
+                volgendeId = 1; // Loop terug naar de eerste na de laatste puzzel
             }
             laadPuzzel(volgendeId);
         }
@@ -559,10 +595,15 @@
             bouwGridEersteKeer();
         });
 
+        randomBtn.addEventListener('click', function() {
+            speelWillekeurigeAnderePuzzel();
+        });
+
         nextBtn.addEventListener('click', function() {
             gaNaarVolgendePuzzel();
         });
 
+        // Start het spel gewoon netjes bij Puzzel 1
         laadPuzzel(1);
     </script>
 </body>
