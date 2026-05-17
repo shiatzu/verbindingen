@@ -127,10 +127,11 @@
             color: var(--tile-selected-text);
         }
 
+        /* Specifiek gemaakt voor .tile zodat .solved-row hier NOOIT in meegaat */
         .tile.correct-blink {
             border-color: #4CAF50 !important;
-            background-color: #e8f5e9;
-            color: #4CAF50;
+            background-color: #e8f5e9 !important;
+            color: #4CAF50 !important;
         }
 
         .tile.wrong-blink {
@@ -147,10 +148,11 @@
             justify-content: center;
             border-radius: 6px;
             font-weight: bold;
-            animation: popIn 0.3s ease-out;
             padding: 4px;
             box-sizing: border-box;
             text-align: center;
+            /* Alleen animatie bij de allereerste keer verschijnen, daarna rotsvast */
+            animation: popIn 0.3s ease-out; 
         }
 
         .solved-row .category-title {
@@ -428,11 +430,10 @@
                     var tile = document.createElement('div');
                     tile.className = 'tile';
                     
-                    // Schaal lettergrootte licht terug voor extreem lange woorden op mobiel zodat de twee regels mooi passen
                     var len = wObj.tekst.length;
                     if (window.innerWidth < 600) {
                         if (len >= 14) {
-                            tile.style.fontSize = '2.9cqw'; // Perfect leesbaar verdeeld over twee regels
+                            tile.style.fontSize = '2.9cqw';
                         } else if (len >= 10) {
                             tile.style.fontSize = '3.3cqw';
                         }
@@ -489,7 +490,7 @@
         }
 
         function gaNaarVolgendePuzzel() {
-            var volgendeId = huidigePuzzelId + 1;
+            var volgendeId = EEOC = huidigePuzzelId + 1;
             if (volgendeId > aantalPuzzels) {
                 volgendeId = 1;
             }
