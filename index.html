@@ -2,8 +2,8 @@
 <html lang="nl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mijn Woordverbindingen Spel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Abstractle - Het Woordverbindingen Spel</title>
     <style>
         :root {
             --bg-color: #ffffff;
@@ -17,6 +17,14 @@
             --cat-3: #ba55d3; /* Paars */
         }
 
+        /* Voorkom scrollen en zet de maximale hoogte vast op 100% van het scherm */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
             background-color: var(--bg-color);
@@ -24,21 +32,25 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 10px; /* Iets minder witruimte op mobiel */
-            margin: 0;
+            justify-content: space-between; /* Verdeelt de elementen netjes over de hoogte */
+            box-sizing: border-box;
+            padding: 2vh 10px; /* Schaalt de witruimte mee met de schermhoogte */
+        }
+
+        .header-container {
+            text-align: center;
+            width: 100%;
         }
 
         h1 {
-            margin-top: 10px;
-            margin-bottom: 5px;
-            font-size: 24px; /* Iets compacter op mobiel */
+            margin: 0 0 2px 0;
+            font-size: 3.5vh; /* Schaalt mee met de hoogte van het scherm */
         }
 
         .instructions {
             color: #666;
-            margin-bottom: 15px;
-            text-align: center;
-            font-size: 14px;
+            margin: 0 0 10px 0;
+            font-size: 1.8vh;
         }
 
         .status-container {
@@ -46,8 +58,8 @@
             justify-content: space-between;
             max-width: 500px;
             width: 100%;
-            margin-bottom: 15px;
-            font-size: 16px;
+            margin-bottom: 1vh;
+            font-size: 2.2vh;
             font-weight: bold;
             box-sizing: border-box;
             padding: 0 5px;
@@ -65,23 +77,28 @@
         #game-container {
             max-width: 500px;
             width: 100%;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
         }
 
         #grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px; /* Iets strakkere grid-lijnen voor meer ruimte */
-            margin-bottom: 15px;
+            gap: 6px;
+            margin-bottom: 1.5vh;
+            container-type: inline-size; /* Zorgt ervoor dat letters meeschalen met de tegelbreedte */
         }
 
         .tile {
-            height: 65px; /* Vaste compacte hoogte zodat 16 vakken altijd passen */
+            height: 10vh; /* Tegels nemen altijd precies 10% van de schermhoogte in */
             background-color: var(--tile-default);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 11px; /* Basisgrootte voor mobiel */
+            font-size: 4.2cqw; /* Tekstgrootte is altijd perfect in verhouding met de tegelbreedte */
             text-transform: uppercase;
             border-radius: 6px;
             cursor: pointer;
@@ -92,12 +109,12 @@
             box-sizing: border-box;
             border: 3px solid transparent;
             overflow: hidden;
-            word-break: break-word; /* Breekt extreem lange woorden netjes af */
+            word-break: break-word;
         }
 
-        /* Als een woord heel lang is, maken we de tekst nóg een slagje kleiner */
+        /* Voor extreem lange woorden zoals Afstandsbediening */
         .tile.long-word {
-            font-size: 9px;
+            font-size: 3.4cqw;
         }
 
         .tile.selected {
@@ -118,7 +135,7 @@
 
         .solved-row {
             grid-column: span 4;
-            height: 55px;
+            height: 10vh; /* Precies even hoog als een normale rij tegels voor rust in het grid */
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -126,40 +143,48 @@
             border-radius: 6px;
             font-weight: bold;
             animation: popIn 0.3s ease-out;
-            margin-bottom: 6px;
-            padding: 5px;
+            padding: 4px;
             box-sizing: border-box;
             text-align: center;
         }
 
         .solved-row .category-title {
-            font-size: 12px;
+            font-size: 4.2cqw;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 2px;
         }
 
         .solved-row .category-words {
-            font-size: 11px;
+            font-size: 3.6cqw;
             font-weight: normal;
             opacity: 0.9;
+        }
+
+        .bottom-container {
+            width: 100%;
+            max-width: 500px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1vh;
         }
 
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
-            margin-bottom: 15px;
+            width: 100%;
         }
 
         button {
             background-color: transparent;
             border: 1px solid #ccc;
-            padding: 10px 20px;
+            padding: 1.5vh 5vh;
             border-radius: 25px;
-            font-size: 15px;
+            font-size: 2.2vh;
             font-weight: 600;
             cursor: pointer;
+            white-space: nowrap;
         }
 
         button:hover {
@@ -179,9 +204,9 @@
 
         #message {
             font-weight: bold;
-            height: 25px;
+            height: 3vh;
             text-align: center;
-            font-size: 14px;
+            font-size: 2vh;
         }
 
         @keyframes shake {
@@ -195,23 +220,29 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Voor grotere schermen (zoals je Mac) schalen we het weer prachtig op */
+        /* Desktop optimalisatie zodat het op een Mac ook prachtig blijft */
         @media (min-width: 600px) {
-            body { padding: 20px; }
-            h1 { font-size: 32px; }
-            .tile { height: 100px; font-size: 14px; }
+            body { padding: 4vh 20px; }
+            #grid { gap: 8px; }
+            .tile { height: 90px; font-size: 14px; }
             .tile.long-word { font-size: 11px; }
-            .solved-row { height: 65px; }
+            .solved-row { height: 90px; }
             .solved-row .category-title { font-size: 14px; }
             .solved-row .category-words { font-size: 12px; }
-            button { padding: 12px 24px; font-size: 16px; }
+            button { padding: 12px 36px; font-size: 16px; }
+            h1 { font-size: 32px; }
+            .instructions { font-size: 16px; }
+            .status-container { font-size: 18px; }
+            #message { font-size: 16px; }
         }
     </style>
 </head>
 <body>
 
-    <h1>Verbandle Kloon</h1>
-    <p class="instructions">Maak groepen van 4 woorden die een centrale link hebben.</p>
+    <div class="header-container">
+        <h1>Abstractle</h1>
+        <p class="instructions">Maak groepen van 4 woorden die een centrale link hebben.</p>
+    </div>
 
     <div class="status-container">
         <div id="level-display">Puzzel 1 / 5</div>
@@ -220,6 +251,9 @@
 
     <div id="game-container">
         <div id="grid"></div>
+    </div>
+
+    <div class="bottom-container">
         <div class="button-container">
             <button id="shuffle-btn">Husselen</button>
             <button id="next-btn">Volgende puzzel</button>
@@ -383,7 +417,6 @@
                     var tile = document.createElement('div');
                     tile.className = 'tile';
                     
-                    // Voeg extra CSS-klasse toe als het woord langer is dan 9 letters
                     if (wObj.tekst.length > 9) {
                         tile.classList.add('long-word');
                     }
@@ -439,7 +472,7 @@
         }
 
         function gaNaarVolgendePuzzel() {
-            var volgendeId = currentId = huidigePuzzelId + 1;
+            var volgendeId = huidigePuzzelId + 1;
             if (volgendeId > aantalPuzzels) {
                 volgendeId = 1;
             }
@@ -477,7 +510,7 @@
                     blokkeerInvoer = false;
                     
                     if (geradenCategorieen.length === 4) {
-                        messageElement.textContent = "Goed gedaan! Klik hieronder voor de volgende puzzel. 🎉";
+                        messageElement.textContent = "Goed gedaan! 🎉";
                         messageElement.style.color = "green";
                         shuffleBtn.style.display = "none";
                         nextBtn.style.display = "inline-block";
@@ -494,7 +527,7 @@
                 }
                 
                 if (resterendeLevens <= 0) {
-                    messageElement.textContent = "Game Over! Bekijk de antwoorden en klik op volgende... 😢";
+                    messageElement.textContent = "Game Over! 😢";
                     messageElement.style.color = "#d32f2f";
                     
                     setTimeout(function() {
@@ -505,7 +538,7 @@
                         nextBtn.style.display = "inline-block";
                     }, 1200);
                 } else {
-                    messageElement.textContent = "Onjuiste combinatie, probeer het opnieuw.";
+                    messageElement.textContent = "Onjuiste combinatie.";
                     messageElement.style.color = "#000000";
                     
                     setTimeout(function() {
