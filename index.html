@@ -32,9 +32,9 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between; /* Verdeelt de elementen netjes over de hoogte */
+            justify-content: space-between;
             box-sizing: border-box;
-            padding: 2vh 10px; /* Schaalt de witruimte mee met de schermhoogte */
+            padding: 2vh 10px;
         }
 
         .header-container {
@@ -44,7 +44,7 @@
 
         h1 {
             margin: 0 0 2px 0;
-            font-size: 3.5vh; /* Schaalt mee met de hoogte van het scherm */
+            font-size: 3.5vh;
         }
 
         .instructions {
@@ -88,33 +88,39 @@
             grid-template-columns: repeat(4, 1fr);
             gap: 6px;
             margin-bottom: 1.5vh;
-            container-type: inline-size; /* Zorgt ervoor dat letters meeschalen met de tegelbreedte */
+            container-type: inline-size;
         }
 
         .tile {
-            height: 10vh; /* Tegels nemen altijd precies 10% van de schermhoogte in */
+            height: 10vh;
             background-color: var(--tile-default);
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: bold;
-            font-size: 4.2cqw; /* Tekstgrootte is altijd perfect in verhouding met de tegelbreedte */
             text-transform: uppercase;
             border-radius: 6px;
             cursor: pointer;
             user-select: none;
             transition: background-color 0.2s, color 0.2s, border-color 0.1s;
             text-align: center;
-            padding: 4px;
+            padding: 2px 4px;
             box-sizing: border-box;
             border: 3px solid transparent;
             overflow: hidden;
-            word-break: break-word;
+            
+            /* Dwing de tekst om op 1 regel te blijven en NOOIT af te breken */
+            white-space: nowrap !important;
+            word-break: keep-all !important;
+            word-wrap: normal !important;
+            
+            /* Slimme standaard font-grootte op basis van de breedte van de tegel */
+            font-size: 4.2cqw; 
         }
 
-        /* Voor extreem lange woorden zoals Afstandsbediening */
+        /* Dynamische schaling via inline styles in JS, deze klasses dienen als achtergrondzekerheid */
         .tile.long-word {
-            font-size: 3.4cqw;
+            font-size: 3.2cqw;
         }
 
         .tile.selected {
@@ -135,7 +141,7 @@
 
         .solved-row {
             grid-column: span 4;
-            height: 10vh; /* Precies even hoog als een normale rij tegels voor rust in het grid */
+            height: 10vh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -153,12 +159,20 @@
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
         .solved-row .category-words {
-            font-size: 3.6cqw;
+            font-size: 3.5cqw;
             font-weight: normal;
             opacity: 0.9;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            width: 100%;
         }
 
         .bottom-container {
@@ -220,12 +234,10 @@
             100% { transform: scale(1); opacity: 1; }
         }
 
-        /* Desktop optimalisatie zodat het op een Mac ook prachtig blijft */
         @media (min-width: 600px) {
             body { padding: 4vh 20px; }
             #grid { gap: 8px; }
-            .tile { height: 90px; font-size: 14px; }
-            .tile.long-word { font-size: 11px; }
+            .tile { height: 90px; font-size: 14px !important; } 
             .solved-row { height: 90px; }
             .solved-row .category-title { font-size: 14px; }
             .solved-row .category-words { font-size: 12px; }
@@ -417,7 +429,21 @@
                     var tile = document.createElement('div');
                     tile.className = 'tile';
                     
-                    if (wObj.tekst.length > 9) {
+                    // Bereken hier de lettergrootte DIRECT op basis van de lengte om afbreken te voorkomen
+                    var len = wObj.tekst.length;
+                    if (window.innerWidth < 600) {
+                        if (len >= 14) {
+                            tile.style.fontSize = '2.4cqw';
+                        } else if (len >= 11) {
+                            tile.style.fontSize = '2.9cqw';
+                        } else if (len >= 9) {
+                            tile.style.fontSize = '3.4cqw';
+                        } else if (len >= 7) {
+                            tile.style.fontSize = '3.9cqw';
+                        }
+                    }
+                    
+                    if (len > 9) {
                         tile.classList.add('long-word');
                     }
                     
