@@ -104,23 +104,22 @@
             user-select: none;
             transition: background-color 0.2s, color 0.2s, border-color 0.1s;
             text-align: center;
-            padding: 2px 4px;
+            padding: 4px;
             box-sizing: border-box;
             border: 3px solid transparent;
             overflow: hidden;
             
-            /* Dwing de tekst om op 1 regel te blijven en NOOIT af te breken */
-            white-space: nowrap !important;
-            word-break: keep-all !important;
-            word-wrap: normal !important;
+            /* Natuurlijk verloop over 2 regels toestaan zonder losse letters af te breken */
+            white-space: normal !important;
+            word-break: normal !important;
+            word-wrap: break-word !important;
+            -webkit-hyphens: auto;
+            -ms-hyphens: auto;
+            hyphens: auto;
             
-            /* Slimme standaard font-grootte op basis van de breedte van de tegel */
-            font-size: 4.2cqw; 
-        }
-
-        /* Dynamische schaling via inline styles in JS, deze klasses dienen als achtergrondzekerheid */
-        .tile.long-word {
-            font-size: 3.2cqw;
+            /* Optimale basisgrootte voor normale woorden */
+            font-size: 4.0cqw; 
+            line-height: 1.15;
         }
 
         .tile.selected {
@@ -237,7 +236,7 @@
         @media (min-width: 600px) {
             body { padding: 4vh 20px; }
             #grid { gap: 8px; }
-            .tile { height: 90px; font-size: 14px !important; } 
+            .tile { height: 90px; font-size: 14px !important; white-space: nowrap !important; } 
             .solved-row { height: 90px; }
             .solved-row .category-title { font-size: 14px; }
             .solved-row .category-words { font-size: 12px; }
@@ -429,22 +428,14 @@
                     var tile = document.createElement('div');
                     tile.className = 'tile';
                     
-                    // Bereken hier de lettergrootte DIRECT op basis van de lengte om afbreken te voorkomen
+                    // Schaal lettergrootte licht terug voor extreem lange woorden op mobiel zodat de twee regels mooi passen
                     var len = wObj.tekst.length;
                     if (window.innerWidth < 600) {
                         if (len >= 14) {
-                            tile.style.fontSize = '2.4cqw';
-                        } else if (len >= 11) {
-                            tile.style.fontSize = '2.9cqw';
-                        } else if (len >= 9) {
-                            tile.style.fontSize = '3.4cqw';
-                        } else if (len >= 7) {
-                            tile.style.fontSize = '3.9cqw';
+                            tile.style.fontSize = '2.9cqw'; // Perfect leesbaar verdeeld over twee regels
+                        } else if (len >= 10) {
+                            tile.style.fontSize = '3.3cqw';
                         }
-                    }
-                    
-                    if (len > 9) {
-                        tile.classList.add('long-word');
                     }
                     
                     tile.id = 'tile-' + wObj.tekst.replace(/[^a-zA-Z0-9]/g, '-');
