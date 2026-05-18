@@ -27,8 +27,11 @@ h1{font-size:26px;font-weight:600;text-align:center;margin-bottom:0.25rem}
 .cat-2{background:#b0c4de;color:#0A3A6E}
 .cat-3{background:#ba55d3;color:#fff}
 .btns{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:0.5rem}
-.btns button{font-size:14px;padding:8px 18px;border-radius:6px;border:1.5px solid #bbb;background:#fff;cursor:pointer;font-weight:500;transition:background 0.15s}
-.btns button:hover{background:#f0f0f0}
+.btns button{font-size:14px;padding:8px 18px;border-radius:6px;border:2px solid #bbb;background:#f5f4f0;cursor:pointer;font-weight:500;transition:background 0.15s}
+.btns button:hover{background:#e8e8e4}
+.btn-deselecteer{border-color:#e07b39!important;color:#e07b39!important}
+.btn-schud{border-color:#4a90d9!important;color:#4a90d9!important}
+.btn-willekeurig{border-color:#7a7a7a!important;color:#7a7a7a!important}
 .btn-primary{background:#000!important;color:#fff!important;border-color:#000!important}
 .btn-primary:hover{background:#333!important}
 #solved-area{margin-bottom:8px}
@@ -158,6 +161,14 @@ function renderSolved(){
   });
 }
 
+function tileFontSize(word){
+  const len=word.length;
+  if(len>=15)return'10px';
+  if(len>=12)return'11px';
+  if(len>=9)return'13px';
+  return'15px';
+}
+
 function renderGrid(){
   const g=document.getElementById('grid');
   g.innerHTML='';
@@ -165,6 +176,7 @@ function renderGrid(){
     const el=document.createElement('div');
     el.className='tile'+(selected.includes(i)?' sel':'');
     el.textContent=t.word;
+    el.style.fontSize=tileFontSize(t.word);
     el.dataset.idx=i;
     if(!gameOver)el.onclick=()=>toggleTile(i);
     g.appendChild(el);
@@ -177,14 +189,19 @@ function renderBtns(){
   if(!gameOver){
     const sd=document.createElement('button');
     sd.textContent='Deselecteer';
+    sd.className='btn-deselecteer';
     sd.onclick=()=>{selected=[];renderGrid();};
     c.appendChild(sd);
+
     const sh=document.createElement('button');
     sh.textContent='Schud';
+    sh.className='btn-schud';
     sh.onclick=()=>{shuffle(tiles);selected=[];renderGrid();};
     c.appendChild(sh);
+
     const rn=document.createElement('button');
     rn.textContent='Willekeurige puzzel';
+    rn.className='btn-willekeurig';
     rn.onclick=randomPuzzle;
     c.appendChild(rn);
   } else {
@@ -193,8 +210,10 @@ function renderBtns(){
     nx.className='btn-primary';
     nx.onclick=()=>initPuzzle((currentPuzzle+1)%PUZZLES.length);
     c.appendChild(nx);
+
     const rn=document.createElement('button');
     rn.textContent='Willekeurige puzzel';
+    rn.className='btn-willekeurig';
     rn.onclick=randomPuzzle;
     c.appendChild(rn);
   }
