@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="nl">
 <head>
@@ -11,7 +12,7 @@ body{font-family:system-ui,sans-serif;background:#f5f4f0;color:#1a1a1a;min-heigh
 h1{font-size:26px;font-weight:600;text-align:center;margin-bottom:0.25rem}
 .sub{font-size:15px;color:#666;text-align:center;margin-bottom:1rem}
 .puzzle-nr{font-size:14px;color:#888;text-align:center;margin-bottom:0.75rem}
-.lives{display:flex;gap:6px;justify-content:center;margin-bottom:1rem;font-size:22px}
+.lives{min-height:32px;display:flex;gap:6px;justify-content:center;margin-bottom:1rem;font-size:22px}
 .msg{min-height:26px;text-align:center;font-size:15px;font-weight:500;margin-bottom:0.5rem}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
 .tile{padding:12px 6px;border-radius:8px;border:2px solid #ccc;background:#fff;cursor:pointer;text-align:center;font-size:15px;font-weight:500;color:#1a1a1a;transition:background 0.15s,border-color 0.15s,transform 0.2s;user-select:none;min-height:64px;display:flex;align-items:center;justify-content:center;word-break:break-word;line-height:1.2}
@@ -117,12 +118,12 @@ const PUZZLES = [
 ];
 
 const STORAGE_KEY='verbindingen_voortgang';
+const maxLevens=4;
+let currentPuzzle=0,tiles=[],selected=[],lives=4,solvedCats=[],gameOver=false;
 
 function getLaatsteGespeeld(){
-  try{
-    const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
-    return data;
-  }catch(e){return[];}
+  try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');}
+  catch(e){return[];}
 }
 
 function markeerGedaan(idx){
@@ -138,10 +139,8 @@ function getStartPuzzel(){
   for(let i=0;i<PUZZLES.length;i++){
     if(!gedaan.includes(i))return i;
   }
-  return 0; // Alles gedaan, begin opnieuw
+  return 0;
 }
-
-let currentPuzzle=0,tiles=[],selected=[],lives=4,solvedCats=[],gameOver=false;
 
 function initPuzzle(idx){
   currentPuzzle=idx;
@@ -150,7 +149,7 @@ function initPuzzle(idx){
     cat.words.forEach(w=>tiles.push({word:w,catId:cat.id,catName:cat.name}));
   });
   shuffle(tiles);
-  selected=[];lives=4;solvedCats=[];gameOver=false;
+  selected=[];lives=maxLevens;solvedCats=[];gameOver=false;
   render();
 }
 
@@ -184,10 +183,12 @@ function renderVoortgang(){
 function renderLives(){
   const c=document.getElementById('lives');
   c.innerHTML='';
-  for(let i=0;i<4;i++){
-    const s=document.createElement('span');
-    s.textContent=i<lives?'❤️':'🖤';
-    c.appendChild(s);
+  if(lives<maxLevens){
+    for(let i=0;i<maxLevens;i++){
+      const s=document.createElement('span');
+      s.textContent=i<lives?'❤️':'🖤';
+      c.appendChild(s);
+    }
   }
 }
 
@@ -326,8 +327,7 @@ function submit(){
           gameOver=true;
           markeerGedaan(currentPuzzle);
           setMsg('Gefeliciteerd! Alle categorieën gevonden! 🎉','#534AB7');
-          renderBtns();
-          renderVoortgang();
+          renderBtns();renderVoortgang();
         }
       },400);
     },600);
@@ -361,3 +361,4 @@ initPuzzle(getStartPuzzel());
 </script>
 </body>
 </html>
+```
