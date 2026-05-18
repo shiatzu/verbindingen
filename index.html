@@ -14,7 +14,7 @@ h1{font-size:26px;font-weight:600;text-align:center;margin-bottom:0.25rem}
 .lives{min-height:32px;display:flex;gap:6px;justify-content:center;margin-bottom:1rem;font-size:22px}
 .msg{min-height:26px;text-align:center;font-size:15px;font-weight:500;margin-bottom:0.5rem}
 .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem}
-.tile{padding:12px 6px;border-radius:8px;border:2px solid #ccc;background:#fff;cursor:pointer;text-align:center;font-size:15px;font-weight:500;color:#1a1a1a;transition:background 0.15s,border-color 0.15s,transform 0.2s;user-select:none;min-height:64px;display:flex;align-items:center;justify-content:center;word-break:break-word;line-height:1.2;hyphens:auto}
+.tile{padding:8px 4px;border-radius:8px;border:2px solid #ccc;background:#fff;cursor:pointer;text-align:center;font-size:15px;font-weight:500;color:#1a1a1a;transition:background 0.15s,border-color 0.15s,transform 0.2s;user-select:none;min-height:64px;display:flex;align-items:center;justify-content:center;word-break:break-word;hyphens:auto;line-height:1.2;overflow:hidden}
 .tile:hover{border-color:#888;background:#f0f0f0}
 .tile.sel{border-color:#534AB7;background:#EEEDFE;color:#3C3089}
 .tile.shake{animation:shake 0.4s}
@@ -65,15 +65,15 @@ const PUZZLES = [
     categories:[
       {id:0, name:"Dingen die (vaak) geel zijn", words:["Banaan","Taxi","Kanarie","Badeend"]},
       {id:1, name:"Onvrijwillige acties", words:["Niezen","Blozen","Braken","Hoesten"]},
-      {id:2, name:"Dingen die prikken", words:["Cactus","Naald","Wesp","Brand\u00adnetel"]},
+      {id:2, name:"Dingen die prikken", words:["Cactus","Naald","Wesp","Brandnetel"]},
       {id:3, name:"Werkwoorden zonder de G", words:["Rillen","Luren","Raaien","Okken"]}
     ]
   },
   {
     title:"Puzzel 2",
     categories:[
-      {id:0, name:"Staatsvormen", words:["Monarchie","Republiek","Theo\u00adcratie","Dictatuur"]},
-      {id:1, name:"Gebruiksvoorwerpen met batterijen", words:["Klok","Rook\u00admelder","Afstands\u00adbediening","Weeg\u00adschaal"]},
+      {id:0, name:"Staatsvormen", words:["Monarchie","Republiek","Theocratie","Dictatuur"]},
+      {id:1, name:"Gebruiksvoorwerpen met batterijen", words:["Klok","Rookmelder","Afstandsbediening","Weegschaal"]},
       {id:2, name:"Nieuwssites", words:["Nu","Nos","Ad","Fd"]},
       {id:3, name:"Afkortingen van Nederlandse provincies", words:["Gr","Dr","Nh","Ut"]}
     ]
@@ -83,41 +83,41 @@ const PUZZLES = [
     categories:[
       {id:0, name:"Hoofd, schouders, knie en teen", words:["Hoofd","Schouders","Knie","Teen"]},
       {id:1, name:"Teletubbie personages", words:["Tinky Winky","Po","Laa-Laa","Dipsy"]},
-      {id:2, name:"-knop", words:["Aan-uit","Volume","Deur","Bloem"]},
+      {id:2, name:"Eindigend op -knop", words:["Aan-uit","Volume","Deur","Bloem"]},
       {id:3, name:"Beroemde Michaels", words:["Jordan","Jackson","J Fox","Caine"]}
     ]
   },
   {
     title:"Puzzel 4",
     categories:[
-      {id:0, name:"Woorden met een dier", words:["Angst\u00adhaas","Suiker\u00adspin","Motor\u00admuis","Kitkat"]},
+      {id:0, name:"Woorden met een dier in de tweede lettergreep", words:["Angsthaas","Suikerspin","Motormuis","Kitkat"]},
       {id:1, name:"Tennistermen", words:["Ace","Love","Set","Deuce"]},
       {id:2, name:"Woorden die 'twee' betekenen", words:["Paar","Duo","Koppel","Stel"]},
-      {id:3, name:"Goud-", words:["Vis","Smid","A","Mijn"]}
+      {id:3, name:"Woorden te combineren met Goud-", words:["Vis","Smid","A","Mijn"]}
     ]
   },
   {
     title:"Puzzel 5",
     categories:[
-      {id:0, name:"Woorden met een umlaut", words:["Uber\u00adhaupt","Fohn","Knacke\u00adbrod","Rosti"]},
+      {id:0, name:"Woorden met een umlaut", words:["Uberhaupt","Fohn","Knackebrod","Rosti"]},
       {id:1, name:"Palindromen", words:["Kajak","Level","Radar","Solos"]},
-      {id:2, name:"-band", words:["Rock","Horloge","Video","Breed"]},
-      {id:3, name:"Hansen", words:["Teeuwen","Wiegel","Kaz\u00e0n","Klok"]}
+      {id:2, name:"Eindigend op -band", words:["Rock","Horloge","Video","Breed"]},
+      {id:3, name:"Hansen", words:["Teeuwen","Wiegel","Kazàn","Klok"]}
     ]
   },
   {
     title:"Puzzel 6",
     categories:[
-      {id:0, name:"-bank", words:["Rabo","Triodos","ASN","Regio"]},
+      {id:0, name:"Woorden vóór -bank", words:["Rabo","Triodos","ASN","Regio"]},
       {id:1, name:"Woorden voor 'niets'", words:["Niks","Noppes","Nada","Nul"]},
-      {id:2, name:"-fiets", words:["Brom","Race","Deel","Vouw"]},
+      {id:2, name:"Woorden vóór -fiets", words:["Brom","Race","Deel","Vouw"]},
       {id:3, name:"Uitroepen", words:["Ah","Ai","Oef","Pff"]}
     ]
   },
   {
     title:"Puzzel 7",
     categories:[
-      {id:0, name:"Dingen die zwart-wit zijn", words:["Zebra","Pingu\u00efn","Dalmatier","Schaak\u00adbord"]},
+      {id:0, name:"Dingen die zwart-wit zijn", words:["Zebra","Pinguïn","Dalmatier","Schaakbord"]},
       {id:1, name:"Dingen die je kunt breken", words:["Been","Record","Wet","Bord"]},
       {id:2, name:"Bomen", words:["Eik","Beuk","Linde","Berk"]},
       {id:3, name:"F1 wereldkampioenen", words:["Verstappen","Schumacher","Senna","Hamilton"]}
@@ -126,10 +126,10 @@ const PUZZLES = [
   {
     title:"Puzzel 8",
     categories:[
-      {id:0, name:"Aard-", words:["Appel","Bei","Ver\u00adschuiving","Beving"]},
+      {id:0, name:"Woorden na Aard-", words:["Appel","Bei","Verschuiving","Beving"]},
       {id:1, name:"Populairste jongensnamen 2025", words:["Noah","Liam","Luca","Sem"]},
       {id:2, name:"Woorden die eindigen op -een", words:["Gemeen","Sereen","Screen","Bijeen"]},
-      {id:3, name:"Toetsen op een toetsenbord", words:["Tab","Alt","Shift","Enter"]}
+      {id:3, name:"Toetsen op een toetsenbord", words:["CTRL","ALT","SHIFT","ENTER"]}
     ]
   }
 ];
@@ -227,17 +227,12 @@ function renderSolved(){
   });
 }
 
-function tileFontSize(word){
-  const mobile=window.innerWidth<600;
-  const len=word.replace(/\u00ad/g,'').length;
-  if(mobile){
-    if(len>=9)return'10px';
-    if(len>=7)return'12px';
-    return'14px';
-  } else {
-    if(len>=15)return'13px';
-    if(len>=12)return'14px';
-    return'15px';
+function fitText(el){
+  let size=16;
+  el.style.fontSize=size+'px';
+  while((el.scrollWidth>el.clientWidth||el.scrollHeight>el.clientHeight)&&size>8){
+    size--;
+    el.style.fontSize=size+'px';
   }
 }
 
@@ -247,11 +242,13 @@ function renderGrid(){
   tiles.forEach((t,i)=>{
     const el=document.createElement('div');
     el.className='tile'+(selected.includes(i)?' sel':'');
-    el.innerHTML=t.word;
-    el.style.fontSize=tileFontSize(t.word);
+    el.textContent=t.word;
     el.dataset.idx=i;
     if(!gameOver)el.onclick=()=>toggleTile(i);
     g.appendChild(el);
+  });
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.tile').forEach(el=>fitText(el));
   });
 }
 
@@ -384,3 +381,4 @@ initPuzzle(getStartPuzzel());
 </script>
 </body>
 </html>
+```
