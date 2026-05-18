@@ -38,12 +38,18 @@ h1{font-size:26px;font-weight:600;text-align:center;margin-bottom:0.25rem}
 .btn-primary{background:#000!important;color:#fff!important;border-color:#000!important}
 .btn-primary:hover{background:#333!important}
 #solved-area{margin-bottom:8px}
+.voortgang{text-align:center;margin-bottom:0.75rem;display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.voortgang-dot{width:28px;height:28px;border-radius:50%;border:2px solid #ccc;background:#fff;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#aaa;cursor:pointer;transition:all 0.2s}
+.voortgang-dot.gedaan{background:#4CAF50;border-color:#4CAF50;color:#fff}
+.voortgang-dot.actief{border-color:#534AB7;color:#534AB7;font-weight:700}
+.voortgang-dot:hover{border-color:#534AB7}
 </style>
 </head>
 <body>
 <div id="app">
   <h1>Verbindingen</h1>
   <p class="sub">Vind vier woorden die bij elkaar horen</p>
+  <div class="voortgang" id="voortgang"></div>
   <div class="puzzle-nr" id="puzzle-nr"></div>
   <div class="lives" id="lives"></div>
   <div class="msg" id="msg"></div>
@@ -110,6 +116,31 @@ const PUZZLES = [
   }
 ];
 
+const STORAGE_KEY='verbindingen_voortgang';
+
+function getLaatsteGespeeld(){
+  try{
+    const data=JSON.parse(localStorage.getItem(STORAGE_KEY)||'[]');
+    return data;
+  }catch(e){return[];}
+}
+
+function markeerGedaan(idx){
+  try{
+    const data=getLaatsteGespeeld();
+    if(!data.includes(idx))data.push(idx);
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+  }catch(e){}
+}
+
+function getStartPuzzel(){
+  const gedaan=getLaatsteGespeeld();
+  for(let i=0;i<PUZZLES.length;i++){
+    if(!gedaan.includes(i))return i;
+  }
+  return 0; // Alles gedaan, begin opnieuw
+}
+
 let currentPuzzle=0,tiles=[],selected=[],lives=4,solvedCats=[],gameOver=false;
 
 function initPuzzle(idx){
@@ -132,8 +163,22 @@ function shuffle(arr){
 
 function render(){
   document.getElementById('puzzle-nr').textContent=PUZZLES[currentPuzzle].title+' / '+PUZZLES.length;
-  renderLives();renderSolved();renderGrid();renderBtns();
+  renderVoortgang();renderLives();renderSolved();renderGrid();renderBtns();
   document.getElementById('msg').textContent='';
+}
+
+function renderVoortgang(){
+  const gedaan=getLaatsteGespeeld();
+  const c=document.getElementById('voortgang');
+  c.innerHTML='';
+  PUZZLES.forEach((_,i)=>{
+    const dot=document.createElement('div');
+    dot.className='voortgang-dot'+(gedaan.includes(i)?' gedaan':i===currentPuzzle?' actief':'');
+    dot.textContent=gedaan.includes(i)?'✓':(i+1);
+    dot.title='Puzzel '+(i+1);
+    dot.onclick=()=>initPuzzle(i);
+    c.appendChild(dot);
+  });
 }
 
 function renderLives(){
@@ -261,7 +306,7 @@ function submit(){
     const tileDivs=document.querySelectorAll('.tile');
     selected.forEach(i=>{
       const el=Array.from(tileDivs).find(el=>parseInt(el.dataset.idx)===i);
-      if(el) el.classList.add('correct');
+      if(el)el.classList.add('correct');
     });
 
     setTimeout(()=>{
@@ -279,8 +324,10 @@ function submit(){
         renderSolved();renderGrid();renderLives();
         if(tiles.length===0){
           gameOver=true;
+          markeerGedaan(currentPuzzle);
           setMsg('Gefeliciteerd! Alle categorieën gevonden! 🎉','#534AB7');
           renderBtns();
+          renderVoortgang();
         }
       },400);
     },600);
@@ -310,8 +357,7 @@ function submit(){
   }
 }
 
-initPuzzle(0);
+initPuzzle(getStartPuzzel());
 </script>
 </body>
 </html>
-```
