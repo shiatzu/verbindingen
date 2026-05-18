@@ -8,118 +8,134 @@
         :root {
             --bg-color: #ffffff;
             --text-color: #000000;
-            --tile-default: #efefe6;
-            --tile-selected: #5a5a5a;
+            --tile-default: #f4f4f0;      /* Zacht crème/grijs conform Connections */
+            --tile-selected: #5a5954;     /* Elegant donkergrijs voor selectie */
             --tile-selected-text: #ffffff;
-            --cat-0: #f9df6d; /* Geel */
-            --cat-1: #a0c35a; /* Groen */
-            --cat-2: #b0c4de; /* Blauw */
-            --cat-3: #ba55d3; /* Paars */
+            
+            /* Gedempte premium pastelkleuren */
+            --cat-0: #f9df6d; /* Warm Geel */
+            --cat-1: #a0c35a; /* Comfortabel Groen */
+            --cat-2: #b0c4de; /* Kalm Blauw */
+            --cat-3: #ba55d3; /* Koningspaars */
         }
 
-        /* Voorkom scrollen en zet de maximale hoogte vast op 100% van het scherm */
         html, body {
             height: 100%;
             margin: 0;
             padding: 0;
             overflow: hidden;
+            background-color: var(--bg-color);
         }
 
         body {
             font-family: 'Helvetica Neue', Arial, sans-serif;
-            background-color: var(--bg-color);
             color: var(--text-color);
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-between;
+            justify-content: flex-start; /* Ruimte natuurlijk opbouwen vanaf de bovenkant */
             box-sizing: border-box;
-            padding: 2vh 10px;
+            padding: 3vh 16px;
         }
 
         .header-container {
             text-align: center;
             width: 100%;
+            margin-bottom: 2vh;
         }
 
         h1 {
-            margin: 0 0 2px 0;
-            font-size: 3.5vh;
+            margin: 0 0 4px 0;
+            font-size: 3.8vh;
+            font-weight: 700;
+            letter-spacing: -0.5px;
         }
 
         .instructions {
-            color: #666;
-            margin: 0 0 10px 0;
+            color: #5a5954;
+            margin: 0;
             font-size: 1.8vh;
+            font-weight: 400;
         }
 
         .status-container {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             max-width: 500px;
             width: 100%;
-            margin-bottom: 1vh;
-            font-size: 2.2vh;
-            font-weight: bold;
+            margin-bottom: 2vh;
+            font-size: 1.9vh;
+            color: #333;
             box-sizing: border-box;
-            padding: 0 5px;
+            padding: 0 4px;
+            border-bottom: 1px solid #e6e6e6;
+            padding-bottom: 8px;
+        }
+
+        #level-display {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #666;
+        }
+
+        #lives-box {
+            font-weight: 500;
         }
 
         .heart {
             color: #d32f2f;
-            margin: 0 2px;
+            margin: 0 1px;
         }
 
         .heart.lost {
-            color: #ccc;
+            color: #e0e0e0;
         }
 
         #game-container {
             max-width: 500px;
             width: 100%;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
+            margin-bottom: 2vh;
         }
 
         #grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            margin-bottom: 1.5vh;
+            gap: 8px; /* Iets meer ademruimte tussen de tegels */
             container-type: inline-size;
         }
 
         .tile {
-            height: 10vh;
+            height: 9.5vh;
             background-color: var(--tile-default);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-weight: bold;
+            font-weight: 700;
             text-transform: uppercase;
             border-radius: 6px;
             cursor: pointer;
             user-select: none;
-            transition: background-color 0.2s, color 0.2s, border-color 0.1s;
+            transition: background-color 0.15s, color 0.15s, transform 0.1s;
             text-align: center;
-            padding: 4px;
+            padding: 6px;
             box-sizing: border-box;
             border: 3px solid transparent;
             overflow: hidden;
+            letter-spacing: -0.2px;
             
-            /* Natuurlijk verloop over 2 regels toestaan zonder losse letters af te breken */
             white-space: normal !important;
             word-break: normal !important;
             word-wrap: break-word !important;
-            -webkit-hyphens: auto;
-            -ms-hyphens: auto;
-            hyphens: auto;
             
-            /* Optimale basisgrootte voor normale woorden */
-            font-size: 4.0cqw; 
-            line-height: 1.15;
+            font-size: 3.8cqw; 
+            line-height: 1.2;
+        }
+
+        /* Subtiel schaaleffect bij tikken op mobiel */
+        .tile:active {
+            transform: scale(0.97);
         }
 
         .tile.selected {
@@ -140,38 +156,39 @@
 
         .solved-row {
             grid-column: span 4;
-            height: 10vh;
+            height: 9.5vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             border-radius: 6px;
             font-weight: bold;
-            padding: 4px;
+            padding: 6px;
             box-sizing: border-box;
             text-align: center;
-            animation: popIn 0.3s ease-out; 
+            animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
         }
 
         .solved-row .category-title {
-            font-size: 4.2cqw;
+            font-size: 4.0cqw;
             text-transform: uppercase;
             letter-spacing: 0.5px;
             margin-bottom: 2px;
+            color: #000000;
+            width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            width: 100%;
         }
 
         .solved-row .category-words {
-            font-size: 3.5cqw;
-            font-weight: normal;
-            opacity: 0.9;
+            font-size: 3.4cqw;
+            font-weight: 500;
+            color: #222222;
+            width: 100%;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
-            width: 100%;
         }
 
         .bottom-container {
@@ -180,58 +197,66 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1vh;
+            gap: 2vh;
+            margin-top: auto; /* Duwt de knoppen netjes naar de biologische onderkant */
+            padding-bottom: 1vh;
+        }
+
+        #message {
+            font-weight: 700;
+            height: 3vh;
+            text-align: center;
+            font-size: 2vh;
+            letter-spacing: -0.2px;
         }
 
         .button-container {
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 12px;
             width: 100%;
         }
 
         button {
             background-color: transparent;
-            border: 1px solid #ccc;
-            padding: 1.5vh 2vh;
-            border-radius: 25px;
+            border: 1px solid #a3a39f;
+            color: #000000;
+            padding: 1.6vh 0;
+            border-radius: 24px;
             font-size: 1.9vh;
             font-weight: 600;
             cursor: pointer;
             white-space: nowrap;
             flex: 1;
-            max-width: 240px;
+            max-width: 220px;
+            transition: background-color 0.15s, border-color 0.15s;
         }
 
         button:hover {
-            background-color: #f5f5f5;
+            background-color: #f4f4f0;
         }
 
         #random-btn {
-            border-color: #e67e22;
-            color: #e67e22;
+            border-color: #cbd5e1;
+            color: #64748b; /* Rustige kleur zodat het de primaire gameplay niet stoort */
         }
 
         #random-btn:hover {
-            background-color: #fdf5ee;
+            background-color: #f8fafc;
+            border-color: #94a3b8;
         }
 
         #next-btn {
-            background-color: #2196F3;
-            color: white;
+            background-color: #000000; /* Solide zwart accent voor de actieknop */
+            color: #ffffff;
             border: none;
             display: none;
+            max-width: 260px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
 
         #next-btn:hover {
-            background-color: #1e88e5;
-        }
-
-        #message {
-            font-weight: bold;
-            height: 3vh;
-            text-align: center;
-            font-size: 2vh;
+            background-color: #222222;
         }
 
         @keyframes shake {
@@ -241,22 +266,25 @@
         }
 
         @keyframes popIn {
-            0% { transform: scale(0.9); opacity: 0; }
+            0% { transform: scale(0.95); opacity: 0; }
             100% { transform: scale(1); opacity: 1; }
         }
 
+        /* Desktop optimalisatie */
         @media (min-width: 600px) {
-            body { padding: 4vh 20px; }
-            #grid { gap: 8px; }
-            .tile { height: 90px; font-size: 14px !important; white-space: nowrap !important; } 
-            .solved-row { height: 90px; }
-            .solved-row .category-title { font-size: 14px; }
-            .solved-row .category-words { font-size: 12px; }
-            button { padding: 12px 24px; font-size: 15px; }
-            h1 { font-size: 32px; }
+            body { padding: 5vh 20px; justify-content: center; }
+            .header-container { margin-bottom: 30px; }
+            h1 { font-size: 36px; }
             .instructions { font-size: 16px; }
-            .status-container { font-size: 18px; }
+            .status-container { font-size: 16px; margin-bottom: 25px; }
+            #grid { gap: 10px; }
+            .tile { height: 84px; font-size: 14px !important; white-space: nowrap !important; } 
+            .solved-row { height: 84px; }
+            .solved-row .category-title { font-size: 14px; }
+            .solved-row .category-words { font-size: 13px; }
+            button { padding: 14px 0; font-size: 15px; border-radius: 28px; }
             #message { font-size: 16px; }
+            .bottom-container { margin-top: 20px; }
         }
     </style>
 </head>
@@ -277,12 +305,12 @@
     </div>
 
     <div class="bottom-container">
+        <div id="message"></div>
         <div class="button-container">
             <button id="shuffle-btn">Husselen</button>
-            <button id="random-btn">Willekeurige andere puzzel</button>
+            <button id="random-btn">Willekeurige puzzel</button>
             <button id="next-btn">Volgende puzzel</button>
         </div>
-        <div id="message"></div>
     </div>
 
     <script>
@@ -388,7 +416,6 @@
                 }
             }
             
-            // Kies een random ID uit de overgebleven puzzels
             var randomId = opties[Math.floor(Math.random() * opties.length)];
             laadPuzzel(randomId);
         }
@@ -442,7 +469,7 @@
             }
         }
 
-        function vindCategoriePerId(catId) {
+        function findCategoriePerId(catId) {
             for (var c = 0; c < actievePuzzelData.length; c++) {
                 if (actievePuzzelData[c].id === catId) return actievePuzzelData[c];
             }
@@ -464,9 +491,9 @@
             var len = woordObj.tekst.length;
             if (window.innerWidth < 600) {
                 if (len >= 14) {
-                    tile.style.fontSize = '2.9cqw';
+                    tile.style.fontSize = '2.8cqw';
                 } else if (len >= 10) {
-                    tile.style.fontSize = '3.3cqw';
+                    tile.style.fontSize = '3.2cqw';
                 }
             }
             
@@ -584,7 +611,7 @@
         function gaNaarVolgendePuzzel() {
             var volgendeId = actievePuzzelId + 1;
             if (volgendeId > aantalPuzzels) {
-                volgendeId = 1; // Loop terug naar de eerste na de laatste puzzel
+                volgendeId = 1;
             }
             laadPuzzel(volgendeId);
         }
@@ -603,7 +630,6 @@
             gaNaarVolgendePuzzel();
         });
 
-        // Start het spel gewoon netjes bij Puzzel 1
         laadPuzzel(1);
     </script>
 </body>
