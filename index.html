@@ -211,11 +211,18 @@ function renderSolved(){
 }
 
 function tileFontSize(word){
+  const mobile=window.innerWidth<600;
   const len=word.length;
-  if(len>=15)return'10px';
-  if(len>=12)return'11px';
-  if(len>=9)return'13px';
-  return'15px';
+  if(mobile){
+    if(len>=15)return'10px';
+    if(len>=12)return'11px';
+    if(len>=9)return'13px';
+    return'15px';
+  } else {
+    if(len>=15)return'13px';
+    if(len>=12)return'14px';
+    return'15px';
+  }
 }
 
 function renderGrid(){
