@@ -213,10 +213,9 @@ function tileFontSize(word){
   const mobile=window.innerWidth<600;
   const len=word.length;
   if(mobile){
-    if(len>=15)return'10px';
-    if(len>=12)return'11px';
-    if(len>=9)return'13px';
-    return'15px';
+    if(len>=9)return'10px';
+    if(len>=7)return'12px';
+    return'14px';
   } else {
     if(len>=15)return'13px';
     if(len>=12)return'14px';
