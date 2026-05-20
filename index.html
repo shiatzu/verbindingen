@@ -43,22 +43,77 @@ h1{font-size:26px;font-weight:600;text-align:center;margin-bottom:0.25rem}
 .voortgang-dot.gedaan{background:#4CAF50;border-color:#4CAF50;color:#fff}
 .voortgang-dot.actief{border-color:#534AB7;color:#534AB7;font-weight:700}
 .voortgang-dot:hover{border-color:#534AB7}
+
+/* Header met contact-knop */
+.header-row{display:flex;align-items:center;justify-content:center;position:relative;margin-bottom:0.25rem}
+.header-row h1{flex:1;text-align:center}
+.btn-contact-header{position:absolute;right:0;font-size:12px;padding:5px 11px;border-radius:6px;border:2px solid #888;background:#f5f4f0;color:#555;cursor:pointer;font-weight:600;transition:background 0.15s,color 0.15s,border-color 0.15s;white-space:nowrap}
+.btn-contact-header:hover{border-color:#333;color:#111;background:#e8e8e4}
+
+/* Contact pagina */
+#contact-page{display:none;padding:2rem 0}
+#contact-page h2{font-size:22px;font-weight:600;margin-bottom:1.25rem;text-align:center}
+.contact-card{background:#fff;border-radius:12px;padding:1.75rem 1.5rem;border:2px solid #eee;line-height:1.7;font-size:15px;color:#333}
+.contact-card p{margin-bottom:1rem}
+.contact-card p:last-child{margin-bottom:0}
+.contact-mail{color:#534AB7;font-weight:600;text-decoration:none}
+.contact-mail:hover{text-decoration:underline}
+.btn-terug{display:block;margin:1.25rem auto 0;font-size:14px;padding:8px 18px;border-radius:6px;border:2px solid #bbb;background:#f5f4f0;cursor:pointer;font-weight:500;transition:background 0.15s}
+.btn-terug:hover{background:#e8e8e4}
 </style>
 </head>
 <body>
 <div id="app">
-  <h1>Combipuzzel</h1>
-  <p class="sub">Vind vier woorden die bij elkaar horen</p>
-  <div class="voortgang" id="voortgang"></div>
-  <div class="puzzle-nr" id="puzzle-nr"></div>
-  <div class="lives" id="lives"></div>
-  <div class="msg" id="msg"></div>
-  <div id="solved-area"></div>
-  <div class="grid" id="grid"></div>
-  <div class="btns" id="btns"></div>
+  <div class="header-row">
+    <h1 onclick="naarHome()" style="cursor:pointer" title="Terug naar de puzzel">Combipuzzel</h1>
+    <button class="btn-contact-header" onclick="naarContact()">Contact</button>
+  </div>
+
+  <!-- Puzzel pagina -->
+  <div id="puzzel-page">
+    <p class="sub">Vind vier woorden die bij elkaar horen</p>
+    <div class="voortgang" id="voortgang"></div>
+    <div class="puzzle-nr" id="puzzle-nr"></div>
+    <div class="lives" id="lives"></div>
+    <div class="msg" id="msg"></div>
+    <div id="solved-area"></div>
+    <div class="grid" id="grid"></div>
+    <div class="btns" id="btns"></div>
+  </div>
+
+  <!-- Contact pagina -->
+  <div id="contact-page">
+    <h2>Contact</h2>
+    <div class="contact-card">
+      <p>Combipuzzel is geïnspireerd op <a class="contact-mail" href="https://www.nytimes.com/games/connections" target="_blank" rel="noopener">Connections</a> van The New York Times. Er is ook een andere Nederlandse variant: <a class="contact-mail" href="https://verbandle.nl/" target="_blank" rel="noopener">Verbandle</a>.</p>
+      <p>Heb je vragen, suggesties voor een puzzel, of klopt iets niet? Of wil je gewoon even kletsen? Mail dan naar <a class="contact-mail" href="mailto:bert@combipuzzel.nl">bert@combipuzzel.nl</a></p>
+    </div>
+    <button class="btn-terug" onclick="verbergContact()">← Terug naar de puzzel</button>
+  </div>
 </div>
 
 <script>
+function toonContact(){
+  document.getElementById('contact-page').style.display='block';
+  document.getElementById('puzzel-page').style.display='none';
+}
+function verbergContact(){
+  document.getElementById('contact-page').style.display='none';
+  document.getElementById('puzzel-page').style.display='block';
+}
+function naarContact(){
+  history.pushState({page:'contact'},'','#contact');
+  toonContact();
+}
+function naarHome(){
+  history.pushState({page:'puzzel'},'','#');
+  verbergContact();
+}
+window.addEventListener('popstate',function(e){
+  if(location.hash==='#contact'){toonContact();}
+  else{verbergContact();}
+});
+
 const PUZZLES = [
   {
     title:"Puzzel 1",
@@ -132,7 +187,7 @@ const PUZZLES = [
       {id:3, name:"Toetsen op een toetsenbord", words:["Ctrl","Alt","Shift","Enter"]}
     ]
   },
-    {
+  {
     title:"Puzzel 9",
     categories:[
       {id:0, name:"'Proost' in verschillende talen", words:["Skål","Salud","Santé","Lechaim"]},
@@ -153,33 +208,51 @@ const PUZZLES = [
   {
     title:"Puzzel 11",
     categories:[
-      {id:0, name:"(Internationale) alarmnummers", words:["911", "112", "111", "999"]},
-      {id:1, name:"Deelbaar door 7", words:["7", "14", "21", "140"]},
-      {id:2, name:"Romeinse keizers", words:["Caesar", "Aurelius", "Nero", "Otho"]},
-      {id:3, name:"Italiaanse schilders", words:["Rafaël", "Caravaggio", "Donatello", "Titiaan"]}
+      {id:0, name:"(Internationale) alarmnummers", words:["911","112","111","999"]},
+      {id:1, name:"Deelbaar door 7", words:["7","14","21","140"]},
+      {id:2, name:"Romeinse keizers", words:["Caesar","Aurelius","Nero","Otho"]},
+      {id:3, name:"Italiaanse schilders", words:["Rafaël","Caravaggio","Donatello","Titiaan"]}
     ]
   },
-{
-  title:"Puzzel 12",
-  categories:[
-    {id:0, name:"Gereedschap in de tuin", words:["Hark","Schop","Spade","Zeis"]},
-    {id:1, name:"Kaassoorten", words:["Gouda","Brie","Cheddar","Feta"]},
-    {id:2, name:"Dansen", words:["Wals","Tango","Polka","Samba"]},
-    {id:3, name:"Stoffen", words:["Flanel","Katoen","Linnen","Satijn"]}
-  ]
+  {
+    title:"Puzzel 12",
+    categories:[
+      {id:0, name:"Gereedschap in de tuin", words:["Hark","Schop","Spade","Zeis"]},
+      {id:1, name:"Kaassoorten", words:["Gouda","Brie","Cheddar","Feta"]},
+      {id:2, name:"Dansen", words:["Wals","Tango","Polka","Samba"]},
+      {id:3, name:"Stoffen", words:["Flanel","Katoen","Linnen","Satijn"]}
+    ]
   },
   {
-  title:"Puzzel 13",
-  categories:[
-    {id:0, name:"Dieren die lichtgeven", words:["Vuurvlieg","Glimworm","Kwal","Inktvis"]},
-    {id:1, name:"Landen die de euro gebruiken", words:["Kosovo","Montenegro","Andorra","San Marino"]},
-    {id:2, name:"Noordse landen", words:["Noorwegen","Zweden","IJsland","Finland"]},
-    {id:3, name:"Dieren met een bult", words:["Kameel","Dromedaris","Zeboe","Buffel"]}
-  ]
-},
+    title:"Puzzel 13",
+    categories:[
+      {id:0, name:"Dieren die lichtgeven", words:["Vuurvlieg","Glimworm","Kwal","Inktvis"]},
+      {id:1, name:"Landen die de euro gebruiken", words:["Kosovo","Montenegro","Andorra","San Marino"]},
+      {id:2, name:"Noordse landen", words:["Noorwegen","Zweden","IJsland","Finland"]},
+      {id:3, name:"Dieren met een bult", words:["Kameel","Dromedaris","Zeboe","Buffel"]}
+    ]
+  },
+  {
+    title:"Puzzel 14",
+    categories:[
+      {id:0, name:"Sportevenementen in de VS", words:["Super Bowl","Daytona 500","Masters","Kentucky Derby"]},
+      {id:1, name:"Bekende schilderijen", words:["Mona Lisa","Sterrennacht","Guernica","De Schreeuw"]},
+      {id:2, name:"James Bond films", words:["Goldfinger","Skyfall","Goldeneye","Casino Royale"]},
+      {id:3, name:"Populair snoep in de VS", words:["Blow Pop","Reese's","Snickers","M&M's"]}
+    ]
+  },
+  {
+    title:"Puzzel 15",
+    categories:[
+      {id:0, name:"Personages in Friends", words:["Ross","Chandler","Joey","Monica"]},
+      {id:1, name:"Juridische termen", words:["Requisitoir","Pleidooi","Cassatie","Dagvaarding"]},
+      {id:2, name:"Christelijke begrippen", words:["Reliek","Biecht","Doop","Preek"]},
+      {id:3, name:"Liedjes met meisjesnamen", words:["Billie Jean","Valerie","Jolene","Roxanne"]}
+    ]
+  },
 ];
 
-const STORAGE_KEY='verbindingen_voortgang';
+const STORAGE_KEY='combipuzzel_voortgang';
 const maxLevens=4;
 let currentPuzzle=0,tiles=[],selected=[],lives=4,solvedCats=[],gameOver=false;
 
@@ -212,6 +285,7 @@ function initPuzzle(idx){
   });
   shuffle(tiles);
   selected=[];lives=maxLevens;solvedCats=[];gameOver=false;
+  verbergContact();
   render();
 }
 
@@ -423,7 +497,7 @@ function submit(){
 }
 
 initPuzzle(getStartPuzzel());
+if(location.hash==='#contact'){toonContact();}
 </script>
 </body>
 </html>
-```
